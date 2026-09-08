@@ -8,3 +8,4 @@ export * from "@/lib/validations/auth";
 export * from "@/lib/validations/member";
 export * from "@/lib/validations/membership-plan";
 export * from "@/lib/validations/subscription";
+export * from "@/lib/validations/payment";

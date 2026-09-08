@@ -35,10 +35,17 @@ enum PaymentMethod {
   UPI
   CARD
   BANK_TRANSFER
+  CHEQUE
+  ONLINE
+  OTHER
 }
 
 enum PaymentStatus {
+  PENDING
+  FAILED
   COMPLETED
+  REFUNDED
+  PARTIALLY_REFUNDED
   VOIDED
 }
 
@@ -199,6 +206,7 @@ model Payment {
   status         PaymentStatus @default(COMPLETED)
   notes          String?
   createdBy      String?
+  originalPaymentId String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -206,6 +214,8 @@ model Payment {
   member       Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
   creator      User?         @relation("PaymentCreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  originalPayment Payment?    @relation("PaymentAdjustments", fields: [originalPaymentId], references: [id], onDelete: Restrict)
+  adjustments     Payment[]   @relation("PaymentAdjustments")
 
   // Receipt numbers are sequential per gym, not globally.
   @@unique([organizationId, receiptNumber])
@@ -213,6 +223,8 @@ model Payment {
   @@index([memberId])
   @@index([paymentDate])
   @@index([status])
+  @@index([paymentMethod])
+  @@index([subscriptionId])
   @@map("payments")
 }
 
