@@ -11,11 +11,23 @@ export type Permission =
   | "settings:manage"
   | "staff:manage"
   | "payments:void"
-  | "reports:view";
+  | "reports:view"
+  | "members:view"
+  | "members:create"
+  | "members:update"
+  | "members:deactivate"
+  | "plans:view"
+  | "plans:create"
+  | "plans:update"
+  | "plans:deactivate"
+  | "subscriptions:view"
+  | "subscriptions:create"
+  | "subscriptions:update"
+  | "subscriptions:cancel";
 
 const rolePermissions: Record<UserRole, Permission[]> = {
-  OWNER: ["settings:manage", "staff:manage", "payments:void", "reports:view"],
-  STAFF: ["reports:view"],
+  OWNER: ["settings:manage", "staff:manage", "payments:void", "reports:view", "members:view", "members:create", "members:update", "members:deactivate", "plans:view", "plans:create", "plans:update", "plans:deactivate", "subscriptions:view", "subscriptions:create", "subscriptions:update", "subscriptions:cancel"],
+  STAFF: ["reports:view", "members:view", "members:create", "members:update", "plans:view", "subscriptions:view", "subscriptions:create", "subscriptions:update"],
 };
 
 export function can(role: UserRole, permission: Permission): boolean {
