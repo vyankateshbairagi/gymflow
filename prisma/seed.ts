@@ -1,7 +1,12 @@
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const db = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+const db = new PrismaClient({ adapter });
 
 // Demo credentials for local testing only — change these (or delete the
 // demo org entirely) before using this against a real gym's data.
