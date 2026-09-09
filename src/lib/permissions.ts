@@ -28,11 +28,14 @@ export type Permission =
   | "payments:create"
   | "payments:refund"
   | "payments:adjust"
-  | "payments:export";
+  | "payments:export"
+  | "attendance:view"
+  | "attendance:create"
+  | "attendance:update";
 
 const rolePermissions: Record<UserRole, Permission[]> = {
-  OWNER: ["settings:manage", "staff:manage", "payments:void", "reports:view", "members:view", "members:create", "members:update", "members:deactivate", "plans:view", "plans:create", "plans:update", "plans:deactivate", "subscriptions:view", "subscriptions:create", "subscriptions:update", "subscriptions:cancel", "payments:view", "payments:create", "payments:refund", "payments:adjust", "payments:export"],
-  STAFF: ["reports:view", "members:view", "members:create", "members:update", "plans:view", "subscriptions:view", "subscriptions:create", "subscriptions:update", "payments:view", "payments:create"],
+  OWNER: ["settings:manage", "staff:manage", "payments:void", "reports:view", "members:view", "members:create", "members:update", "members:deactivate", "plans:view", "plans:create", "plans:update", "plans:deactivate", "subscriptions:view", "subscriptions:create", "subscriptions:update", "subscriptions:cancel", "payments:view", "payments:create", "payments:refund", "payments:adjust", "payments:export", "attendance:view", "attendance:create", "attendance:update"],
+  STAFF: ["reports:view", "members:view", "members:create", "members:update", "plans:view", "subscriptions:view", "subscriptions:create", "subscriptions:update", "payments:view", "payments:create", "attendance:view", "attendance:create", "attendance:update"],
 };
 
 export function can(role: UserRole, permission: Permission): boolean {

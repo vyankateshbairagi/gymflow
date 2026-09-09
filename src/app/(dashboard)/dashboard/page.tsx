@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import {
   Table,
   TableBody,
@@ -54,7 +56,13 @@ const todaysAttendance = [
   { member: "Nikhil Verma", time: "8:01 AM" },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  const now = new Date();
+  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const tomorrow = new Date(today);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const todaysAttendanceCount = await db.attendance.count({ where: { organizationId: user.organizationId, date: { gte: today, lt: tomorrow } } });
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -73,6 +81,15 @@ export default function DashboardPage() {
           <StatCard key={s.label} {...s} />
         ))}
       </div>
+      <Card>
+        <CardContent className="flex items-center justify-between p-5">
+          <div>
+            <p className="text-sm text-muted-foreground">Today&apos;s Attendance</p>
+            <p className="mt-1 text-2xl font-semibold">{todaysAttendanceCount}</p>
+          </div>
+          <UserCheck className="size-5 text-muted-foreground" />
+        </CardContent>
+      </Card>
 
       {/* Revenue overview */}
       <Card>
