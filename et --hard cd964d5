@@ -1,0 +1,7 @@
+[33m379a266[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to head~1
+[33mcd964d5[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: commit: feat(reports): implement reports page with financial and membership analytics
+[33m379a266[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2}: commit: feat(attendance): implement attendance check-in and check-out functionality with UI components
+[33m13e0f47[m HEAD@{3}: commit: feat(payments): implement payment recording and refund functionality
+[33m91bccd7[m HEAD@{4}: commit: feat: add membership plan and subscription management features
+[33mde3b95a[m HEAD@{5}: commit: feat: integrate Prisma with PostgreSQL adapter and update dependencies
+[33m8ff5976[m HEAD@{6}: commit (initial): feat: add UI components and authentication logic
