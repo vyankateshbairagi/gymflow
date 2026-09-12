@@ -10,3 +10,4 @@ export * from "@/lib/validations/membership-plan";
 export * from "@/lib/validations/subscription";
 export * from "@/lib/validations/payment";
 export * from "@/lib/validations/attendance";
+export * from "@/lib/validations/settings";

@@ -62,6 +62,16 @@ model Organization {
   email     String?
   address   String?
   isActive  Boolean  @default(true)
+  // Preferences (Settings module). Small, flat scalar fields rather than a
+  // JSON blob since there are only two of them today. `currency`/`timezone`
+  // are validated against a short allow-list at the Zod layer (see
+  // src/lib/validations/settings.ts) — the column itself stays a plain
+  // String so adding another supported value later is a validation-only
+  // change, not a migration. Existing India-based data defaults to
+  // Asia/Kolkata / INR; nothing else (e.g. Attendance) reads these fields
+  // yet — see the comment in settings-workspace.tsx.
+  timezone  String   @default("Asia/Kolkata")
+  currency  String   @default("INR")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
