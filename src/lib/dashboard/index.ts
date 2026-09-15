@@ -9,9 +9,9 @@ export type DashboardStats = {
   pendingFees: string;
   revenueTrend: { month: string; amount: string }[];
   currentMonthRevenue: string;
-  expiringMemberships: { member: string; plan: string; expiresIn: string }[];
-  todaysAttendance: { member: string; time: string }[];
-  recentPayments: { member: string; plan: string; amount: string; method: string; date: string }[];
+  expiringMemberships: { id: string; member: string; plan: string; expiresIn: string }[];
+  todaysAttendance: { id: string; member: string; time: string }[];
+  recentPayments: { id: string; member: string; plan: string; amount: string; method: string; date: string }[];
 };
 
 function dayStart(value: Date) {
@@ -105,6 +105,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
       orderBy: { endDate: "asc" },
       take: 10,
       select: {
+        id: true,
         endDate: true,
         member: { select: { name: true } },
         plan: { select: { name: true } },
@@ -119,6 +120,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
       orderBy: { checkInTime: "desc" },
       take: 10,
       select: {
+        id: true,
         checkInTime: true,
         member: { select: { name: true } },
       },
@@ -132,6 +134,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
       orderBy: { paymentDate: "desc" },
       take: 5,
       select: {
+        id: true,
         amount: true,
         paymentMethod: true,
         paymentDate: true,
@@ -191,6 +194,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
     const endDay = dayStart(subscription.endDate);
     const daysRemaining = Math.max(0, Math.ceil((endDay.getTime() - today.getTime()) / 86_400_000));
     return {
+      id: subscription.id,
       member: subscription.member.name,
       plan: subscription.plan.name,
       expiresIn: `${daysRemaining} ${daysRemaining === 1 ? "day" : "days"}`,
@@ -198,6 +202,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
   });
 
   const todaysAttendance = attendanceRecords.map((attendance) => ({
+    id: attendance.id,
     member: attendance.member.name,
     time: attendance.checkInTime
       ? attendance.checkInTime.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })
@@ -205,6 +210,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
   }));
 
   const recentPayments = recentPaymentRecords.map((payment) => ({
+    id: payment.id,
     member: payment.member.name,
     plan: payment.subscription?.plan.name ?? "—",
     amount: payment.amount.toFixed(2),

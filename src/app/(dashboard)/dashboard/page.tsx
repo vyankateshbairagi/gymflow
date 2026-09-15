@@ -119,7 +119,7 @@ export default async function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {recentPayments.map((p) => (
-                  <TableRow key={p.member}>
+                  <TableRow key={p.id}>
                     <TableCell className="font-medium">{p.member}</TableCell>
                     <TableCell className="text-muted-foreground">{p.plan}</TableCell>
                     <TableCell className="text-muted-foreground">{p.method}</TableCell>
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {expiringMemberships.map((m) => (
-                  <TableRow key={m.member}>
+                  <TableRow key={m.id}>
                     <TableCell className="font-medium">{m.member}</TableCell>
                     <TableCell className="text-muted-foreground">{m.plan}</TableCell>
                     <TableCell className="text-right">
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
             </TableHeader>
             <TableBody>
               {todaysAttendance.map((a) => (
-                <TableRow key={a.member}>
+                <TableRow key={a.id}>
                   <TableCell className="font-medium">{a.member}</TableCell>
                   <TableCell className="text-right text-muted-foreground">
                     {a.time}
