@@ -1,7 +1,6 @@
 import { Users, UserCheck, AlarmClock, Wallet, IndianRupee } from "lucide-react";
 
 import { StatCard } from "@/components/shared/stat-card";
-import { MockDataBadge } from "@/components/shared/mock-data-badge";
 import {
   Card,
   CardContent,
@@ -10,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { db } from "@/lib/db";
+import { getDashboardStats } from "@/lib/dashboard";
 import { getCurrentUser } from "@/lib/auth";
 import {
   Table,
@@ -21,48 +20,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// ---------------------------------------------------------------------------
-// All data on this page is hard-coded placeholder data for Day 1. None of it
-// is read from the database yet — that's intentional (see project brief).
-// ---------------------------------------------------------------------------
-
-const stats = [
-  { label: "Total Members", value: "452", icon: Users, tone: "default" as const },
-  { label: "Active Members", value: "387", icon: UserCheck, tone: "positive" as const },
-  { label: "Expiring Soon", value: "21", icon: AlarmClock, tone: "warning" as const },
-  { label: "Pending Fees", value: "₹38,500", icon: Wallet, tone: "warning" as const },
-];
-
-const recentPayments = [
-  { member: "Aarav Sharma", plan: "Quarterly", amount: "₹4,500", method: "UPI", date: "5 Sep" },
-  { member: "Priya Nair", plan: "Monthly", amount: "₹1,500", method: "Cash", date: "5 Sep" },
-  { member: "Rohan Mehta", plan: "Yearly", amount: "₹14,000", method: "Card", date: "4 Sep" },
-  { member: "Sneha Iyer", plan: "Monthly", amount: "₹1,500", method: "UPI", date: "4 Sep" },
-  { member: "Kabir Singh", plan: "Half Yearly", amount: "₹7,200", method: "Bank Transfer", date: "3 Sep" },
-];
-
-const expiringMemberships = [
-  { member: "Ananya Gupta", plan: "Monthly", expiresIn: "2 days" },
-  { member: "Vikram Rao", plan: "Quarterly", expiresIn: "3 days" },
-  { member: "Meera Joshi", plan: "Monthly", expiresIn: "5 days" },
-  { member: "Arjun Kapoor", plan: "Yearly", expiresIn: "6 days" },
-];
-
-const todaysAttendance = [
-  { member: "Riya Malhotra", time: "6:12 AM" },
-  { member: "Dev Patel", time: "6:45 AM" },
-  { member: "Ishaan Bose", time: "7:03 AM" },
-  { member: "Tara Kulkarni", time: "7:20 AM" },
-  { member: "Nikhil Verma", time: "8:01 AM" },
-];
-
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const tomorrow = new Date(today);
-  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-  const todaysAttendanceCount = await db.attendance.count({ where: { organizationId: user.organizationId, date: { gte: today, lt: tomorrow } } });
+  const statsData = await getDashboardStats(user.organizationId);
+  const todaysAttendance = statsData.todaysAttendance;
+  const todaysAttendanceCount = todaysAttendance.length;
+  const expiringMemberships = statsData.expiringMemberships;
+  const recentPayments = statsData.recentPayments;
+  const stats = [
+    { label: "Total Members", value: statsData.totalMembers.toLocaleString("en-IN"), icon: Users, tone: "default" as const },
+    { label: "Active Members", value: statsData.activeMembers.toLocaleString("en-IN"), icon: UserCheck, tone: "positive" as const },
+    { label: "Expiring Soon", value: statsData.expiringSoon.toLocaleString("en-IN"), icon: AlarmClock, tone: "warning" as const },
+    { label: "Pending Fees", value: `₹${Number(statsData.pendingFees).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: Wallet, tone: "warning" as const },
+  ];
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -72,7 +42,6 @@ export default async function DashboardPage() {
             Overview of your gym&apos;s activity.
           </p>
         </div>
-        <MockDataBadge />
       </div>
 
       {/* Stat cards */}
@@ -98,32 +67,35 @@ export default async function DashboardPage() {
             <IndianRupee className="size-4" />
             Revenue Overview
           </CardTitle>
-          <CardDescription>Monthly revenue trend (placeholder)</CardDescription>
+          <CardDescription>Revenue collected over the last 6 months</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-end gap-3">
-            {[
-              { m: "Apr", v: 40 },
-              { m: "May", v: 55 },
-              { m: "Jun", v: 48 },
-              { m: "Jul", v: 62 },
-              { m: "Aug", v: 70 },
-              { m: "Sep", v: 82 },
-            ].map((bar) => (
-              <div key={bar.m} className="flex flex-1 flex-col items-center gap-2">
-                <div className="flex h-32 w-full items-end">
-                  <div
-                    className="w-full rounded-t-md bg-primary/80"
-                    style={{ height: `${bar.v}%` }}
-                  />
+            {statsData.revenueTrend.map((bar, index) => {
+              const maxRevenue = Math.max(...statsData.revenueTrend.map((item) => Number(item.amount)), 1);
+              const height = (Number(bar.amount) / maxRevenue) * 100;
+              return (
+                <div key={`${bar.month}-${index}`} className="flex flex-1 flex-col items-center gap-2">
+                  <div className="flex h-32 w-full items-end">
+                    <div
+                      className="w-full rounded-t-md bg-primary/80"
+                      style={{ height: `${Math.max(height, Number(bar.amount) > 0 ? 4 : 0)}%` }}
+                      title={`₹${Number(bar.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{bar.month}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{bar.m}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             This month&apos;s revenue:{" "}
-            <span className="font-medium text-foreground">₹2,45,000</span>
+            <span className="font-medium text-foreground">
+              ₹{Number(statsData.currentMonthRevenue).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </p>
         </CardContent>
       </Card>
@@ -151,7 +123,7 @@ export default async function DashboardPage() {
                     <TableCell className="font-medium">{p.member}</TableCell>
                     <TableCell className="text-muted-foreground">{p.plan}</TableCell>
                     <TableCell className="text-muted-foreground">{p.method}</TableCell>
-                    <TableCell className="text-right">{p.amount}</TableCell>
+                    <TableCell className="text-right">₹{Number(p.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
